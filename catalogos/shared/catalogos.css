@@ -326,6 +326,10 @@ h1 {
   line-height: 1.5;
 }
 
+.catalog-status[hidden] {
+  display: none;
+}
+
 .catalog-status strong {
   color: var(--color-text);
 }
