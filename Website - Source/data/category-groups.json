@@ -1,0 +1,137 @@
+[
+  {
+    "grupo": "Escolar",
+    "descripcion": "Productos personalizados para organizar, identificar y preparar el regreso a clases.",
+    "productos": [
+      {
+        "nombre": "Etiquetas de papel",
+        "descripcion": "Para libretas, carpetas, cuadernos y empaques ligeros.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Etiquetas de vinil",
+        "descripcion": "Mayor resistencia para termos, loncheras y superficies de uso diario.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Tags para mochila",
+        "descripcion": "Identificadores personalizados para mochilas, loncheras o maletas.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Cortadores 3D",
+        "descripcion": "Cortadores personalizados para proyectos escolares o reposteria creativa.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Etiquetas DTF",
+        "descripcion": "Aplicaciones textiles para prendas, bolsas o accesorios.",
+        "imagen": ""
+      }
+    ]
+  },
+  {
+    "grupo": "Party Favors",
+    "descripcion": "Detalles tematicos para regalar, decorar y completar la experiencia de una fiesta.",
+    "productos": [
+      {
+        "nombre": "Candy Box",
+        "descripcion": "Cajitas personalizadas para dulces o pequenos regalos.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Activity Box",
+        "descripcion": "Kits con actividades, detalles y piezas impresas para invitados.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Cake/Cupcake Topper",
+        "descripcion": "Decoraciones para pastel, cupcakes y mesas dulces.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Clear Bag",
+        "descripcion": "Bolsitas transparentes con cierre, etiqueta o topper personalizado.",
+        "imagen": ""
+      }
+    ]
+  },
+  {
+    "grupo": "Papeleria personalizada",
+    "descripcion": "Piezas impresas o digitales para comunicar, agradecer y presentar con estilo.",
+    "productos": [
+      {
+        "nombre": "Invitaciones",
+        "descripcion": "Versiones impresas o digitales para eventos especiales.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Tarjetas de agradecimiento",
+        "descripcion": "Detalles para clientes, invitados o paquetes personalizados.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Menus y programas",
+        "descripcion": "Papeleria de evento para mesas, ceremonias o recepciones.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Stickers decorativos",
+        "descripcion": "Stickers por tema, frase, nombre o coleccion.",
+        "imagen": ""
+      }
+    ]
+  },
+  {
+    "grupo": "Eventos",
+    "descripcion": "Recursos visuales para celebraciones, mesas de dulces y experiencias memorables.",
+    "productos": [
+      {
+        "nombre": "Senaletica",
+        "descripcion": "Letreros pequenos para mesas, estaciones o areas del evento.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Kits tematicos",
+        "descripcion": "Combinaciones de papeleria, etiquetas y detalles por tema.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Recuerdos personalizados",
+        "descripcion": "Detalles con nombre, fecha o identidad visual del evento.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Decoracion impresa",
+        "descripcion": "Piezas ligeras para complementar mesas, fondos o empaques.",
+        "imagen": ""
+      }
+    ]
+  },
+  {
+    "grupo": "Emprendimientos",
+    "descripcion": "Papeleria y empaques para pequenos negocios que quieren verse mas profesionales.",
+    "productos": [
+      {
+        "nombre": "Etiquetas de producto",
+        "descripcion": "Etiquetas para frascos, bolsas, cajas y empaques.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Tarjetas de marca",
+        "descripcion": "Tarjetas de presentacion, cuidado, gracias o recompra.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Fajillas y sellos",
+        "descripcion": "Piezas para cerrar, decorar o identificar empaques.",
+        "imagen": ""
+      },
+      {
+        "nombre": "Promocionales",
+        "descripcion": "Detalles personalizados para clientes, lanzamientos o eventos.",
+        "imagen": ""
+      }
+    ]
+  }
+]

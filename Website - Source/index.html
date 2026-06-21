@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Macarena Party Supplies | Home Page</title>
+    <link rel="stylesheet" href="css/base.css"> <!-- Eph MUST: Base styles -->
+    <link rel="stylesheet" href="css/index.css">
+
+    <script src="js/index.js" defer></script>
+    <script src="js/catalog-preview.js" defer></script>
+    <script src="js/category-groups.js" defer></script>
+    <script src="js/instagram-posts.js" defer></script>
+    <script src="js/featured-products.js" defer></script>
+</head>
+
+<body>
+
+  <header class="site-header">
+
+    <div class="logo">
+      <a href="index.html">
+        <img src="assets/macarena-simplified.png" alt="Macarena Party Supplies Simplified">  <!-- logotipo simplificado "MACARENA"-->
+      </a>
+    </div>
+
+    <nav class="nav-menu">
+      <ul>
+        <li><a href="#productos"><strong>Productos</strong></a></li>
+        <li><a href="services.html"><strong>Servicios</strong></a></li>  <!-- Enlace a servicios "services.html"-->
+        <li><a href="#colecciones"><strong>Colecciones</strong></a></li>
+        <li><a href="#como-funciona"><strong>¿Cómo funciona?</strong></a></li>
+        <li><a href="#contacto"><strong>Contacto</strong></a></li>
+      </ul>
+    </nav>
+
+    <div class="header-actions"> 
+      <button type="button" id="search-order" aria-label="Buscar pedido">🔍</button>
+      <a href="new-order.html">Carrito (0)</a>
+      <a href="new-order.html">Nuevo pedido</a>
+    </div>
+
+  </header>
+
+  <form id="order-form" hidden>               <!-- Generamos un form en modo hidden para que no sea visible, y con configuración display:none en CSS -->
+    <div class="form-card">
+      <button
+        type="button"
+        class="form-close-btn"
+        id="close-order-form"
+        aria-label="Cerrar referencia del número de pedido"
+      >×</button>
+
+      <h2 class="form-title">Búsqueda de pedidos</h2> <!-- Formulario para búsqueda / seguimiento de pedidos -->
+
+      <div class="form-body">
+        <div class="left">
+
+          <div class="field"> <!-- identificador del diseño de campos -->
+            <ul>
+              <li>
+                <label for="orderNumber">Número de pedido</label>
+
+                <div class="input-wrapper">
+                  <input
+                    type="text"
+                    id="orderNumber"
+                    name="orderNumber"
+                    value="MS-"
+                    autocomplete="off"
+                  >     <!-- Campo para búsqueda de pedidos: Código MS-0000 con bloqueo para evitar ediciones y errores -->
+                  <button
+                    type="button"
+                    class="info-btn"
+                    id="info-toggle"
+                    aria-label="Dónde encontrar el número de pedido"
+                  >i</button> <!-- Desplegamos imagen para encontrar el número de pedido -->
+                </div>
+              </li>
+              <li>
+                <label for="orderNumber">Correo registrado</label>
+
+                <div class="input-wrapper">
+                  <input
+                    type="email"
+                    id="orderEmail"
+                    name="orderEmail"
+                    value=""
+                    autocomplete="off"
+                  >  <!-- Entrada del correo electrónico registrado (TBD número de teléfono) -->
+                </div>
+              </li>
+              <li>
+                <label for="orderNumber">Buscar el más reciente</label>
+
+                <div class="input-wrapper">
+                  <input
+                    type="checkbox"
+                    id="newestOrder"
+                    name="newestOrder"
+                    value=""
+                    autocomplete="off"
+                  >   <!-- Opción para buscar el pedido más reciente o el historial completo del cliente - Posible mejora (auto true si se ingresa # de pedido)-->  
+                </div>
+              </li>
+            </ul>
+            
+          </div>
+
+          <button type="submit" class="search-btn">Buscar</button>    <!-- Comenzar búsqueda (MOCK) aún no se define la lógica de búsqueda en la base de datos -->
+
+        </div>
+
+        <!-- picture box -->
+        <div class="order-help" hidden>     <!-- Imagen oculta para mostrar la ayuda visual -->
+          <div class="order-help-box">
+            <img src="assets/order-number.png" alt="Referencia número de pedido">
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </form>
+
+
+  <main>
+
+    <section class="hero"> <!-- Presentación principal -->
+      
+      <video
+        class="hero-video"
+        autoplay
+        muted
+        loop
+        playsinline
+      >   <!-- Inicialización del video con propiedades de ejecución -->
+        <source src="assets/hero-background.mp4" type="video/mp4"> <!-- Video principal - decoración "globos" -->
+
+      </video>
+
+      <div class="hero-media">
+        <img src="assets/party-supplies.png" alt="Main Logo"> <!-- Logotipo principal - Macarena Party Supplies -->
+      </div>
+
+      <div class="hero-content">
+        <h1 class="hero-title">Diseños personalizados para momentos especiales</h1>
+        <p>Etiquetas, party favors y papelería creativa para eventos, escuelas y pequeños y grandes negocios.</p>
+        <a href="#productos" class="btn-primary">Explorar productos</a>
+      </div>
+
+    </section>
+
+    <section class="general-view" id="productos">
+
+      <div class="section-heading">
+        <h2>Nuestros productos</h2>
+      </div>
+
+      <div class="catalog-carousel" aria-label="Vista previa de catalogo">
+        <button class="carousel-edge carousel-edge-left" type="button" id="catalogPrev" aria-label="Ver productos anteriores" hidden>
+          <span aria-hidden="true">‹</span>
+        </button>
+
+        <div class="catalog-viewport" id="catalogViewport">
+          <div class="catalog-track" id="catalogTrack"></div>
+        </div>
+
+        <button class="carousel-edge carousel-edge-right" type="button" id="catalogNext" aria-label="Ver mas productos">
+          <span aria-hidden="true">›</span>
+        </button>
+      </div>
+
+    </section>
+
+    <section class="quick-access" id="categorias">
+
+      <h2>Categorías</h2>
+
+      <div class="category-group-grid" id="categoryGroupGrid" aria-live="polite"></div>
+
+    </section>
+
+    <section class="featured-products"> <!-- Recomendados y recién agregados al catálogo -->
+
+      <div class="featured-heading">
+        <div>
+          <h2>Productos destacados</h2>
+          <p>Favoritos, novedades y piezas que vale la pena tener a la vista.</p>
+        </div>
+      </div>
+
+      <div class="featured-carousel" aria-label="Productos destacados">
+        <button class="carousel-edge carousel-edge-left" type="button" id="featuredPrev" aria-label="Ver productos destacados anteriores" hidden>
+          <span aria-hidden="true">‹</span>
+        </button>
+
+        <div class="featured-viewport" id="featuredViewport" aria-live="polite">
+          <div class="featured-track" id="featuredTrack"></div>
+        </div>
+
+        <button class="carousel-edge carousel-edge-right" type="button" id="featuredNext" aria-label="Ver mas productos destacados">
+          <span aria-hidden="true">›</span>
+        </button>
+      </div>
+
+    </section>
+
+    <section class="social-proof"> <!-- Instagram references -->
+
+      <h2>Pedidos que inspiran</h2>
+
+      <div class="instagram-post-grid" id="instagramPostGrid" aria-live="polite"></div>
+
+    </section>
+
+    <section class="collections" id="colecciones">
+
+      <h2>Colecciones especiales</h2>
+
+      <div class="collection-grid">
+        <!-- Temporadas, fechas especiales, también (ml - cs desk adm) -->
+      </div>
+
+    </section>
+
+    <section class="how-it-works" id="como-funciona"> <!-- Pasos para comprar, personalizar, etc. == FAQ -->
+
+      <h2>¿Cómo funciona?</h2>
+
+      <ol class="steps">
+        <li>Elige tu producto</li>
+        <li>Personaliza tu diseño</li>
+        <li>Aprueba la vista previa</li>
+        <li>Recibe tu pedido</li>
+      </ol>
+
+    </section>
+    
+    <section class="about-short"> <!-- Introducción de quiénes somos -->
+
+      <h2>Sobre Macarena Party Supplies</h2>
+      <p>
+        Somos un emprendimiento creativo enfocado en transformar ideas en detalles únicos,
+        cuidando cada diseño como si fuera propio.
+      </p>
+      <a href="services.html">Conoce más</a>
+
+    </section>
+
+    <section class="visual-content">
+
+      <h2>Inspiración real</h2>
+
+      <div class="gallery">
+        <!-- Instagram / galería de otros productos (periodicidad para refresh) -->
+      </div>
+
+    </section>
+
+    <section class="quick-contact" id="contacto"> <!-- vías de contacto | 1. WhatsApp 2. Instagram 3. Gmail 4. Website (TBD) -->
+
+      <h2>¿Tienes una idea en mente?</h2>
+      <p>Escríbenos y la hacemos realidad.</p>
+      <a href="https://wa.me/5213330438386" class="secondary-button">Contáctanos</a>
+
+    </section>
+
+  </main>
+
+  <footer class="site-footer"> <!-- Resumen y adicionales v1 -->
+
+    <div class="footer-links">
+
+      <section>
+        <h3>Información</h3>
+        <ul>
+          <li><a href="#contacto">Sobre nosotros</a></li>
+          <li><a href="#como-funciona">Cómo comprar</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>Políticas</h3>
+        <ul>
+          <li><a href="#contacto">Privacidad</a></li>
+          <li><a href="#contacto">Términos</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>Redes sociales</h3>
+        <ul>
+          <li><a href="https://www.instagram.com/macarena_partygdl/">Instagram</a></li>   <!-- Instagram real de Macarena Party Supplies -->
+          <li><a href="https://wa.me/5213330438386">WhatsApp</a></li>  <!-- Enlace real directo a WhatsApp -->
+        </ul>
+      </section>
+
+    </div>
+
+    <p class="trademark">
+        Macarena Party Supplies™ — Marca comercial.
+    </p>
+
+  </footer>
+
+</body>
+</html>
+
+<!-- Comentarios de desarrollo -->
+<!--
+    Las etiquetas previamente descritas en el código no han sido comentadas nuevamente para evitar redundancia
+    en elementos básicos salvo aquellos que han sido generados para un proceso más avanzado.
+    He incluido estilos de CSS dado que estos archivos forman parte de un proyecto más amplio
+    y más detallado visualmente.
+
+    Los nombres de los proyectos y servicios son reales, y representan un emprendimiento en funcionamiento.
+
+    Archivo elaborado por: Alberto Gaytán Cornejo
+    Código de alumno: 226363659
+    Fecha de creación: 28 de enero de 2026
+    Institución: Universidad De Guadalajara Virtual
+    Carrera: Licenciatura en Desarrollo de Sistemas Web
+    Materia: Principios de diseño web
+    Asesora: Dra. Marisol Flores Guerrero
+
+    Temática: Enlaces <a>, tablas <table>, imágenes <img> y videos <video>
+-->

@@ -1,0 +1,107 @@
+[
+  {
+    "nombre": "Candy Box floral",
+    "definicion": "Cajita personalizada para dulces o recuerdos de fiesta.",
+    "imagen": "",
+    "highlight": "#e85ca8",
+    "linea": "superior"
+  },
+  {
+    "nombre": "Etiquetas escolares",
+    "definicion": "Paquete para utiles, libretas, termos y loncheras.",
+    "imagen": "",
+    "highlight": "#7c5cff",
+    "linea": "superior"
+  },
+  {
+    "nombre": "Topper de pastel",
+    "definicion": "Decoracion personalizada para pastel o mesa dulce.",
+    "imagen": "",
+    "highlight": "#ff8a3d",
+    "linea": "superior"
+  },
+  {
+    "nombre": "Tarjetas de marca",
+    "definicion": "Tarjetas de agradecimiento, cuidado o recompra.",
+    "imagen": "",
+    "highlight": "#9b6a43",
+    "linea": "superior"
+  },
+  {
+    "nombre": "Clear Bag tematica",
+    "definicion": "Bolsita transparente con topper o etiqueta personalizada.",
+    "imagen": "",
+    "highlight": "#37b6a7",
+    "linea": "superior"
+  },
+  {
+    "nombre": "Invitacion digital",
+    "definicion": "Archivo listo para compartir por WhatsApp o redes.",
+    "imagen": "",
+    "highlight": "#d946ef",
+    "linea": "superior"
+  },
+  {
+    "nombre": "Tags para mochila",
+    "definicion": "Identificador personalizado para mochila, lonchera o maleta.",
+    "imagen": "",
+    "highlight": "#f4b000",
+    "linea": "superior"
+  },
+  {
+    "nombre": "Stickers para empaque",
+    "definicion": "Stickers de marca para cajas, bolsas o frascos.",
+    "imagen": "",
+    "highlight": "#f06292",
+    "linea": "inferior"
+  },
+  {
+    "nombre": "Activity Box",
+    "definicion": "Caja de actividades para invitados pequenos.",
+    "imagen": "",
+    "highlight": "#5aa9e6",
+    "linea": "inferior"
+  },
+  {
+    "nombre": "Etiquetas de vinil",
+    "definicion": "Etiquetas resistentes para uso diario y superficies lisas.",
+    "imagen": "",
+    "highlight": "#2fbf71",
+    "linea": "inferior"
+  },
+  {
+    "nombre": "Papeleria de evento",
+    "definicion": "Menus, programas y detalles impresos para celebraciones.",
+    "imagen": "",
+    "highlight": "#c084fc",
+    "linea": "inferior"
+  },
+  {
+    "nombre": "Fajillas para producto",
+    "definicion": "Piezas impresas para cerrar y presentar empaques.",
+    "imagen": "",
+    "highlight": "#b7791f",
+    "linea": "inferior"
+  },
+  {
+    "nombre": "Vasos personalizados",
+    "definicion": "Vasos con nombre, tema o identidad visual.",
+    "imagen": "",
+    "highlight": "#ef4444",
+    "linea": "inferior"
+  },
+  {
+    "nombre": "Cortadores 3D",
+    "definicion": "Cortadores personalizados para proyectos creativos.",
+    "imagen": "",
+    "highlight": "#14b8a6",
+    "linea": "inferior"
+  },
+  {
+    "nombre": "Mini kit de fiesta",
+    "definicion": "Conjunto de detalles coordinados para una celebracion.",
+    "imagen": "",
+    "highlight": "#fb7185",
+    "linea": "inferior"
+  }
+]

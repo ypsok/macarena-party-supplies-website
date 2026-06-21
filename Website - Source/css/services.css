@@ -1,0 +1,149 @@
+.services-page {
+  background: #fff7fb;
+}
+
+.services {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+}
+
+.services-hero {
+  padding: 4rem 0 3rem;
+  max-width: 760px;
+}
+
+.eyebrow {
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
+.services-hero h1 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  color: #2d2230;
+  margin-bottom: 1rem;
+}
+
+.services-hero p {
+  color: #5f5663;
+  font-size: 1.08rem;
+  max-width: 640px;
+}
+
+.services-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-top: 1.5rem;
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.service-card {
+  background: #fff;
+  border: 1px solid #f0dce7;
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  min-height: 260px;
+  box-shadow: 0 12px 30px rgba(232, 106, 163, 0.08);
+}
+
+.service-tag {
+  display: inline-flex;
+  color: var(--color-secondary);
+  background: #f2efff;
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.service-card h2 {
+  font-size: 1.2rem;
+  color: #2d2230;
+}
+
+.service-card p {
+  color: #5f5663;
+}
+
+.service-materials {
+  margin-top: 1rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.process-band {
+  margin-top: 1.25rem;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius-md);
+  padding: 2rem;
+}
+
+.process-band h2,
+.process-band p {
+  color: #fff;
+}
+
+.process-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  list-style: none;
+  counter-reset: step;
+}
+
+.process-list li {
+  counter-increment: step;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+}
+
+.process-list li::before {
+  content: counter(step);
+  display: block;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--color-primary);
+  text-align: center;
+  line-height: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .service-grid,
+  .process-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .services {
+    width: min(100% - 1rem, 1120px);
+    padding-top: 1rem;
+  }
+
+  .services-hero {
+    padding-top: 2rem;
+  }
+
+  .service-grid,
+  .process-list {
+    grid-template-columns: 1fr;
+  }
+}

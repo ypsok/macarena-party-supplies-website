@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nuevo pedido | Macarena Party Supplies</title>
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/new-order.css">
+  <script defer src="js/new-order.js"></script>
+</head>
+
+<body class="order-page">
+
+  <header class="site-header">
+    <div class="logo">
+      <a href="index.html">
+        <img src="assets/macarena-simplified.png" alt="Macarena Party Supplies">
+      </a>
+    </div>
+
+    <nav class="nav-menu" aria-label="Navegacion principal">
+      <ul>
+        <li><a href="index.html#productos"><strong>Productos</strong></a></li>
+        <li><a href="services.html"><strong>Servicios</strong></a></li>
+        <li><a href="index.html#colecciones"><strong>Colecciones</strong></a></li>
+        <li><a href="index.html#como-funciona"><strong>Como funciona</strong></a></li>
+        <li><a href="index.html#contacto"><strong>Contacto</strong></a></li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <a href="services.html">Servicios</a>
+      <a href="https://wa.me/5213330438386">WhatsApp</a>
+    </div>
+  </header>
+
+  <main class="order-shell">
+    <section class="order-intro">
+      <p class="eyebrow">Cotizacion inicial</p>
+      <h1>Arma tu pedido personalizado</h1>
+      <p>
+        Selecciona los productos, agrega caracteristicas y envia el resumen por WhatsApp.
+        Los precios son una base de referencia y se confirman antes de producir.
+      </p>
+    </section>
+
+    <section class="order-layout">
+      <form id="orderForm" class="order-form">
+        <section class="form-panel">
+          <h2>Datos de contacto</h2>
+          <div class="form-grid">
+            <label>
+              Nombre completo
+              <input type="text" id="customerName" required placeholder="Nombre y apellido">
+            </label>
+            <label>
+              Telefono
+              <input type="tel" id="customerPhone" required placeholder="33 0000 0000">
+            </label>
+            <label>
+              Correo
+              <input type="email" id="customerEmail" placeholder="correo@ejemplo.com">
+            </label>
+            <label>
+              Fecha ideal de entrega
+              <input type="date" id="deliveryDate">
+            </label>
+          </div>
+        </section>
+
+        <section class="form-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Agregar producto</h2>
+              <p>Elige una categoria para ver opciones sugeridas.</p>
+            </div>
+          </div>
+
+          <div class="product-builder">
+            <label>
+              Categoria
+              <select id="categorySelect"></select>
+            </label>
+            <label>
+              Producto
+              <select id="productSelect"></select>
+            </label>
+            <label>
+              Material
+              <select id="materialSelect"></select>
+            </label>
+            <label>
+              Cantidad
+              <div class="quantity-controls">
+                <button type="button" id="qtyMinus" aria-label="Disminuir cantidad">-</button>
+                <input type="number" id="quantityInput" min="1" value="1">
+                <button type="button" id="qtyPlus" aria-label="Aumentar cantidad">+</button>
+              </div>
+            </label>
+          </div>
+
+          <div class="customization-grid">
+            <label>
+              Nombre o texto principal
+              <input type="text" id="mainText" placeholder="Ej. Sofia, Baby Shower, Logotipo">
+            </label>
+            <label>
+              Tema, color o estilo
+              <input type="text" id="themeInput" placeholder="Ej. Kuromi rosa, dinosaurios, minimalista">
+            </label>
+            <label>
+              Medida o formato
+              <input type="text" id="sizeInput" placeholder="Ej. 5 cm, A6, cuadrada">
+            </label>
+            <label>
+              Referencia visual
+              <input type="text" id="referenceInput" placeholder="Link de Instagram, Pinterest o descripcion">
+            </label>
+          </div>
+
+          <label>
+            Notas especiales
+            <textarea id="notesInput" rows="4" placeholder="Incluye detalles, archivos pendientes, frases, restricciones o dudas."></textarea>
+          </label>
+
+          <button type="submit" class="btn-primary">Agregar al pedido</button>
+        </section>
+      </form>
+
+      <aside class="summary-panel" aria-live="polite">
+        <div class="summary-header">
+          <h2>Resumen</h2>
+          <span id="itemCount">0 items</span>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+          Aun no has agregado productos.
+        </div>
+
+        <div id="itemsContainer" class="items-container"></div>
+
+        <div class="totals">
+          <div>
+            <span>Subtotal estimado</span>
+            <strong id="subtotalText">$0</strong>
+          </div>
+          <div>
+            <span>Envio</span>
+            <strong>A confirmar</strong>
+          </div>
+          <div class="total-row">
+            <span>Total base</span>
+            <strong id="totalText">$0</strong>
+          </div>
+        </div>
+
+        <button type="button" id="whatsappBtn" class="whatsapp-btn" disabled>
+          Enviar pedido por WhatsApp
+        </button>
+        <p class="summary-note">El mensaje se abre en WhatsApp para revisar disponibilidad, precio final y tiempos.</p>
+      </aside>
+    </section>
+  </main>
+
+  <footer id="appFooter">
+    <small>© 2026 Macarena Party Supplies</small>
+  </footer>
+
+</body>
+</html>
