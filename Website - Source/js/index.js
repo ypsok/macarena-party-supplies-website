@@ -4,8 +4,25 @@ const input = document.getElementById('orderNumber');
 const infoBtn = document.getElementById('info-toggle');
 const closeBtn = document.getElementById('close-order-form');
 const help = form.querySelector('.order-help');
+const siteHeader = document.querySelector('.site-header');
+const menuToggle = document.querySelector('.menu-toggle');
+const navMenu = document.querySelector('.nav-menu');
 
 const prefix = 'MS-';
+
+if (menuToggle && siteHeader && navMenu) {
+  menuToggle.addEventListener('click', () => {
+    const isOpen = siteHeader.classList.toggle('menu-open');
+    menuToggle.setAttribute('aria-expanded', String(isOpen));
+  });
+
+  navMenu.addEventListener('click', event => {
+    if (event.target.closest('a')) {
+      siteHeader.classList.remove('menu-open');
+      menuToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+}
 
 document.getElementById('search-order').addEventListener('click', e => {   // apertura de mi formulario
   e.preventDefault();

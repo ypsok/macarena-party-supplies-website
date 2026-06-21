@@ -184,6 +184,28 @@ main > section,
   gap: 1.5rem;
 }
 
+.menu-toggle {
+  display: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  padding: 0;
+  border-radius: 50%;
+  background: #fff3f8;
+  color: var(--color-primary);
+}
+
+.menu-toggle span {
+  display: block;
+  width: 1.15rem;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
@@ -220,6 +242,77 @@ main > section,
   display: block;
 }
 
+@media (max-width: 760px) {
+  .site-header {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .site-header.menu-open .menu-toggle span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .site-header.menu-open .menu-toggle span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .site-header.menu-open .menu-toggle span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  .logo {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .header-actions {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .nav-menu {
+    display: none;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    order: initial;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .site-header.menu-open .nav-menu {
+    display: block;
+  }
+
+  .nav-menu ul {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+    padding: 0.4rem 0 0.15rem;
+  }
+
+  .nav-menu a {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: #fff7fb;
+    text-align: center;
+  }
+}
+
 @media (max-width: 900px) {
   .site-header {
     height: auto;
@@ -246,6 +339,20 @@ main > section,
 
   .header-actions {
     margin-left: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .nav-menu {
+    overflow: visible;
+  }
+
+  .nav-menu ul {
+    min-width: 0;
+  }
+
+  .header-actions {
+    margin-left: 0;
   }
 }
 
