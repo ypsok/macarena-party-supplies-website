@@ -188,6 +188,30 @@ main > section,
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex-shrink: 0;
+}
+
+.header-actions button,
+.header-actions a {
+  min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.header-actions button {
+  width: 2.5rem;
+  background: #fff3f8;
+  color: var(--color-primary);
+}
+
+.header-actions a {
+  padding: 0.55rem 0.9rem;
+  background: #fff;
+  border: 1px solid rgba(232, 106, 163, 0.25);
+  color: #2d2230;
 }
 
 .logo img {
@@ -208,6 +232,11 @@ main > section,
     order: 3;
     width: 100%;
     overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav-menu::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-menu ul {
@@ -221,12 +250,41 @@ main > section,
 }
 
 @media (max-width: 560px) {
+  main > section,
+  .site-footer {
+    padding: 2.5rem 1rem;
+  }
+
+  .site-header {
+    align-items: center;
+    padding: 0.75rem 1rem;
+  }
+
   .header-actions {
-    width: 100%;
-    justify-content: space-between;
+    gap: 0.45rem;
+    margin-left: 0;
+  }
+
+  .header-actions button,
+  .header-actions a {
+    min-height: 2.25rem;
+    font-size: 0.86rem;
+  }
+
+  .header-actions button {
+    width: 2.25rem;
+  }
+
+  .header-actions a {
+    padding: 0.45rem 0.65rem;
   }
 
   .site-header a img {
-    max-height: 3.5rem;
+    max-height: 3rem;
+  }
+
+  .nav-menu a {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.9rem;
   }
 }
