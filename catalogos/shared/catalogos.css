@@ -128,14 +128,15 @@ h1 {
 }
 
 .catalog-option-card {
+  position: relative;
   display: grid;
-  min-height: 300px;
-  padding: 1.4rem;
+  grid-template-rows: minmax(220px, 1fr) auto;
+  min-height: 420px;
+  padding: 0;
   border: 1px solid #f0dce7;
   border-radius: var(--radius);
-  background:
-    linear-gradient(135deg, rgba(232, 106, 163, 0.18), rgba(108, 92, 231, 0.08)),
-    #fff;
+  background: #fff;
+  overflow: hidden;
   box-shadow: var(--shadow);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -145,13 +146,55 @@ h1 {
   box-shadow: 0 22px 52px rgba(70, 43, 57, 0.18);
 }
 
-.catalog-option-card strong {
-  align-self: end;
+.catalog-option-media {
+  position: relative;
+  min-height: 260px;
+  background:
+    linear-gradient(135deg, rgba(232, 106, 163, 0.2), rgba(108, 92, 231, 0.1)),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.42) 0 12px, rgba(255, 255, 255, 0.12) 12px 24px);
+}
+
+.catalog-option-media::after {
+  content: "Portada";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  transform: translate(-50%, -50%);
+  color: #b2547a;
+  font-weight: 800;
+  border: 1px dashed rgba(178, 84, 122, 0.45);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.catalog-option-media:has(img:not([hidden]))::after {
+  display: none;
+}
+
+.catalog-option-media img {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  object-fit: cover;
+}
+
+.catalog-option-media img[hidden] {
+  display: none;
+}
+
+.catalog-option-content {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1.25rem;
+  background: #fff;
+}
+
+.catalog-option-content strong {
   font-size: clamp(1.5rem, 4vw, 2.6rem);
   line-height: 1.05;
 }
 
-.catalog-option-card span {
+.catalog-option-content span {
   max-width: 32rem;
   color: var(--color-muted);
   line-height: 1.5;
@@ -276,7 +319,13 @@ h1 {
   }
 
   .catalog-option-card {
-    min-height: 230px;
+    grid-template-rows: minmax(210px, auto) auto;
+    min-height: 360px;
+  }
+
+  .catalog-option-media,
+  .catalog-option-media img {
+    min-height: 210px;
   }
 
   .flipbook-panel {
