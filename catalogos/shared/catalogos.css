@@ -263,34 +263,46 @@ h1 {
   width: 100%;
 }
 
-.flip-page {
+.pdf-spread {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  animation: catalogFade 0.22s ease;
+}
+
+.pdf-spread.is-single {
+  gap: 0;
+}
+
+.pdf-page-shell {
   display: grid;
   place-items: center;
   background: #fff;
-  box-shadow: 0 10px 28px rgba(70, 43, 57, 0.15);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(70, 43, 57, 0.18);
   overflow: hidden;
 }
 
-.single-pdf-page {
-  display: grid;
-  place-items: center;
-  width: 100%;
-}
-
-.single-pdf-page canvas {
+.pdf-page-shell canvas {
   width: auto;
   max-width: 100%;
   height: auto;
-  max-height: 68vh;
+  max-height: 72vh;
   background: #fff;
-  box-shadow: 0 12px 32px rgba(70, 43, 57, 0.18);
 }
 
-.flip-page canvas {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  background: #fff;
+@keyframes catalogFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .catalog-status {
@@ -350,5 +362,13 @@ h1 {
   .flipbook-stage {
     min-height: 68vh;
     align-items: start;
+  }
+
+  .pdf-spread {
+    align-items: start;
+  }
+
+  .pdf-page-shell canvas {
+    max-height: 66vh;
   }
 }

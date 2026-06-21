@@ -2,10 +2,10 @@ const catalogConfig = window.MPS_CATALOG || {};
 
 const state = {
   pdf: null,
-  pageFlip: null,
   pageCount: 0,
   currentPage: 1,
-  mode: "loading"
+  isRendering: false,
+  renderToken: 0
 };
 
 const els = {
@@ -35,42 +35,41 @@ function setControlsDisabled(disabled) {
   els.next.disabled = disabled;
 }
 
-function updateCounter() {
-  if (!els.counter) return;
+function getSpreadStart(pageNumber) {
+  if (isMobile()) return pageNumber;
+  if (pageNumber <= 1) return 1;
+  return pageNumber % 2 === 0 ? pageNumber : pageNumber - 1;
+}
 
-  if (state.mode === "flipbook" && state.pageFlip) {
-    const current = state.pageFlip.getCurrentPageIndex() + 1;
-    els.counter.textContent = `${current} / ${state.pageCount}`;
-    els.prev.disabled = current <= 1;
-    els.next.disabled = current >= state.pageCount;
-    return;
+function updateCounter() {
+  if (!els.counter || !state.pageCount) return;
+
+  if (isMobile() || state.currentPage === 1 || state.currentPage === state.pageCount) {
+    els.counter.textContent = `${state.currentPage} / ${state.pageCount}`;
+  } else {
+    const end = Math.min(state.currentPage + 1, state.pageCount);
+    els.counter.textContent = `${state.currentPage}-${end} / ${state.pageCount}`;
   }
 
-  els.counter.textContent = `${state.currentPage} / ${state.pageCount}`;
-  els.prev.disabled = state.currentPage <= 1;
-  els.next.disabled = state.currentPage >= state.pageCount;
+  els.prev.disabled = state.isRendering || state.currentPage <= 1;
+  els.next.disabled = state.isRendering || state.currentPage >= state.pageCount;
 }
 
 function getStageSize() {
   const bounds = els.stage.getBoundingClientRect();
-  const width = Math.max(280, Math.min(bounds.width - 24, 980));
-  const height = Math.max(360, Math.min(bounds.height - 24, 720));
-
-  if (isMobile()) {
-    return {
-      width: Math.min(width, 430),
-      height: Math.min(height, 660)
-    };
-  }
-
-  return { width, height };
+  return {
+    width: Math.max(280, Math.min(bounds.width - 24, 1080)),
+    height: Math.max(360, Math.min(bounds.height - 24, 760))
+  };
 }
 
-async function renderPageToCanvas(pageNumber, targetWidth) {
+async function renderPageToCanvas(pageNumber, targetWidth, maxHeight) {
   const page = await state.pdf.getPage(pageNumber);
   const initialViewport = page.getViewport({ scale: 1 });
-  const scale = targetWidth / initialViewport.width;
-  const viewport = page.getViewport({ scale: Math.max(scale, 0.5) });
+  const widthScale = targetWidth / initialViewport.width;
+  const heightScale = maxHeight / initialViewport.height;
+  const scale = Math.max(Math.min(widthScale, heightScale), 0.4);
+  const viewport = page.getViewport({ scale });
 
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
@@ -90,74 +89,62 @@ async function renderPageToCanvas(pageNumber, targetWidth) {
   return canvas;
 }
 
-async function renderSinglePage(pageNumber) {
-  state.mode = "single";
-  state.currentPage = pageNumber;
-  setControlsDisabled(true);
-
-  const size = getStageSize();
-  const canvas = await renderPageToCanvas(pageNumber, size.width);
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "single-pdf-page";
-  wrapper.appendChild(canvas);
-
-  els.book.innerHTML = "";
-  els.book.appendChild(wrapper);
-  hideStatus();
-  updateCounter();
+function createPageShell(pageNumber) {
+  const shell = document.createElement("article");
+  shell.className = "pdf-page-shell";
+  shell.setAttribute("aria-label", `Pagina ${pageNumber}`);
+  return shell;
 }
 
-async function renderPdfPagesForFlipbook() {
-  const pages = [];
-  const size = getStageSize();
-  const targetWidth = size.width / 2;
+async function renderViewer(pageNumber) {
+  if (!state.pdf) return;
 
-  for (let pageNumber = 1; pageNumber <= state.pdf.numPages; pageNumber += 1) {
-    const canvas = await renderPageToCanvas(pageNumber, targetWidth);
-    const wrapper = document.createElement("div");
-    wrapper.className = "flip-page";
-    wrapper.appendChild(canvas);
-    pages.push(wrapper);
-  }
-
-  return pages;
-}
-
-function mountPageFlip(pages) {
-  if (!window.St?.PageFlip) {
-    throw new Error("StPageFlip no esta disponible");
-  }
-
-  els.book.innerHTML = "";
-  pages.forEach((page) => els.book.appendChild(page));
-
-  const size = getStageSize();
-
-  state.pageFlip = new St.PageFlip(els.book, {
-    width: Math.round(size.width / 2),
-    height: Math.round(size.height),
-    size: "stretch",
-    minWidth: 280,
-    maxWidth: 520,
-    minHeight: 360,
-    maxHeight: 720,
-    maxShadowOpacity: 0.22,
-    showCover: true,
-    usePortrait: true,
-    mobileScrollSupport: true,
-    flippingTime: 700
-  });
-
-  state.pageFlip.loadFromHTML(els.book.querySelectorAll(".flip-page"));
-  state.pageFlip.on("flip", updateCounter);
-  state.mode = "flipbook";
-  hideStatus();
+  const token = state.renderToken + 1;
+  state.renderToken = token;
+  state.isRendering = true;
   updateCounter();
+
+  const startPage = getSpreadStart(pageNumber);
+  const pages = isMobile()
+    ? [startPage]
+    : [startPage, startPage + 1].filter((page) => page <= state.pageCount);
+
+  const size = getStageSize();
+  const pageWidth = isMobile() ? size.width : (size.width - 18) / pages.length;
+  const pageMaxHeight = isMobile() ? Math.min(size.height, 720) : Math.min(size.height, 740);
+
+  const spread = document.createElement("div");
+  spread.className = `pdf-spread ${isMobile() ? "is-single" : "is-spread"}`;
+
+  try {
+    const renderedPages = await Promise.all(
+      pages.map(async (page) => {
+        const shell = createPageShell(page);
+        const canvas = await renderPageToCanvas(page, pageWidth, pageMaxHeight);
+        shell.appendChild(canvas);
+        return shell;
+      })
+    );
+
+    if (token !== state.renderToken) return;
+
+    renderedPages.forEach((page) => spread.appendChild(page));
+    els.book.innerHTML = "";
+    els.book.appendChild(spread);
+    state.currentPage = startPage;
+    hideStatus();
+  } catch (error) {
+    showPdfFallback("Hubo un problema renderizando esta pagina.");
+  } finally {
+    if (token === state.renderToken) {
+      state.isRendering = false;
+      updateCounter();
+    }
+  }
 }
 
 function showPdfFallback(reason) {
-  state.mode = "fallback";
+  state.isRendering = false;
   setControlsDisabled(true);
   els.book.innerHTML = "";
   setStatus(
@@ -185,39 +172,37 @@ async function initCatalogViewer() {
     pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
     state.pdf = await pdfjsLib.getDocument(catalogConfig.pdf).promise;
     state.pageCount = state.pdf.numPages;
-
-    if (isMobile()) {
-      await renderSinglePage(1);
-      return;
-    }
-
-    try {
-      const pages = await renderPdfPagesForFlipbook();
-      mountPageFlip(pages);
-    } catch (flipbookError) {
-      await renderSinglePage(1);
-    }
+    await renderViewer(1);
   } catch (error) {
     showPdfFallback(`Verifica que el archivo exista en <code>${catalogConfig.pdf}</code>.`);
   }
 }
 
-async function goToRelativePage(direction) {
-  if (state.mode === "flipbook") {
-    if (direction < 0) state.pageFlip?.flipPrev();
-    if (direction > 0) state.pageFlip?.flipNext();
-    return;
-  }
+function getStep(direction) {
+  return isMobile() ? direction : direction * 2;
+}
 
-  if (state.mode === "single") {
-    const nextPage = Math.min(Math.max(state.currentPage + direction, 1), state.pageCount);
-    if (nextPage !== state.currentPage) {
-      await renderSinglePage(nextPage);
-    }
+async function goToRelativePage(direction) {
+  if (state.isRendering) return;
+  const nextPage = Math.min(Math.max(state.currentPage + getStep(direction), 1), state.pageCount);
+  if (nextPage !== state.currentPage) {
+    await renderViewer(nextPage);
   }
 }
 
 els.prev.addEventListener("click", () => goToRelativePage(-1));
 els.next.addEventListener("click", () => goToRelativePage(1));
+
+let touchStartX = 0;
+els.stage.addEventListener("touchstart", (event) => {
+  touchStartX = event.changedTouches[0]?.clientX || 0;
+}, { passive: true });
+
+els.stage.addEventListener("touchend", (event) => {
+  const endX = event.changedTouches[0]?.clientX || 0;
+  const delta = endX - touchStartX;
+  if (Math.abs(delta) < 44) return;
+  goToRelativePage(delta > 0 ? -1 : 1);
+}, { passive: true });
 
 initCatalogViewer();
