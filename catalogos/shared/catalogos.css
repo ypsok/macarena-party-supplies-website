@@ -267,13 +267,8 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
   width: 100%;
   animation: catalogFade 0.22s ease;
-}
-
-.pdf-spread.is-single {
-  gap: 0;
 }
 
 .pdf-page-shell {
@@ -283,13 +278,14 @@ h1 {
   border-radius: 6px;
   box-shadow: 0 12px 32px rgba(70, 43, 57, 0.18);
   overflow: hidden;
+  max-width: 100%;
 }
 
 .pdf-page-shell canvas {
   width: auto;
   max-width: 100%;
   height: auto;
-  max-height: 72vh;
+  max-height: min(74vh, 760px);
   background: #fff;
 }
 

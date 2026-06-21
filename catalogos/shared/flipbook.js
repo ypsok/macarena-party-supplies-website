@@ -18,8 +18,6 @@ const els = {
   download: document.getElementById("downloadPdf")
 };
 
-const isMobile = () => window.matchMedia("(max-width: 760px)").matches;
-
 function setStatus(message, isError = false) {
   if (!els.status) return;
   els.status.hidden = false;
@@ -36,21 +34,13 @@ function setControlsDisabled(disabled) {
 }
 
 function getSpreadStart(pageNumber) {
-  if (isMobile()) return pageNumber;
-  if (pageNumber <= 1) return 1;
-  return pageNumber % 2 === 0 ? pageNumber : pageNumber - 1;
+  return pageNumber;
 }
 
 function updateCounter() {
   if (!els.counter || !state.pageCount) return;
 
-  if (isMobile() || state.currentPage === 1 || state.currentPage === state.pageCount) {
-    els.counter.textContent = `${state.currentPage} / ${state.pageCount}`;
-  } else {
-    const end = Math.min(state.currentPage + 1, state.pageCount);
-    els.counter.textContent = `${state.currentPage}-${end} / ${state.pageCount}`;
-  }
-
+  els.counter.textContent = `${state.currentPage} / ${state.pageCount}`;
   els.prev.disabled = state.isRendering || state.currentPage <= 1;
   els.next.disabled = state.isRendering || state.currentPage >= state.pageCount;
 }
@@ -105,16 +95,14 @@ async function renderViewer(pageNumber) {
   updateCounter();
 
   const startPage = getSpreadStart(pageNumber);
-  const pages = isMobile()
-    ? [startPage]
-    : [startPage, startPage + 1].filter((page) => page <= state.pageCount);
+  const pages = [startPage];
 
   const size = getStageSize();
-  const pageWidth = isMobile() ? size.width : (size.width - 18) / pages.length;
-  const pageMaxHeight = isMobile() ? Math.min(size.height, 720) : Math.min(size.height, 740);
+  const pageWidth = Math.min(size.width, 760);
+  const pageMaxHeight = Math.min(size.height, 760);
 
   const spread = document.createElement("div");
-  spread.className = `pdf-spread ${isMobile() ? "is-single" : "is-spread"}`;
+  spread.className = "pdf-spread is-single";
 
   try {
     const renderedPages = await Promise.all(
@@ -179,7 +167,7 @@ async function initCatalogViewer() {
 }
 
 function getStep(direction) {
-  return isMobile() ? direction : direction * 2;
+  return direction;
 }
 
 async function goToRelativePage(direction) {
