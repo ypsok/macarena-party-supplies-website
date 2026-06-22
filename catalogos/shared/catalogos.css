@@ -864,7 +864,7 @@ h1 {
 .smart-cart-review-card {
   display: grid;
   gap: 1rem;
-  width: min(760px, 100%);
+  width: min(980px, 100%);
   margin: 0 auto;
   padding: clamp(1rem, 4vw, 1.5rem);
   border: 1px solid #f0dce7;
@@ -904,6 +904,127 @@ h1 {
   margin: 0;
   color: var(--color-text);
   line-height: 1.45;
+}
+
+.review-section {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #f0dce7;
+  border-radius: var(--radius);
+  background: #fffafd;
+}
+
+.review-section h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.08rem;
+}
+
+.review-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.review-list.compact {
+  gap: 0.45rem;
+}
+
+.review-list.is-hidden {
+  display: none;
+}
+
+.review-line {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1fr) repeat(2, minmax(9rem, 0.85fr));
+  gap: 0.65rem;
+  align-items: end;
+  padding: 0.75rem;
+  border: 1px solid #f0dce7;
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.review-line strong {
+  color: var(--color-primary);
+}
+
+.review-field,
+.review-line label,
+.review-name-editor label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.review-field span,
+.review-line label span,
+.review-name-editor label span {
+  color: var(--color-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.review-field select,
+.review-line select,
+.review-line input,
+.review-name-editor select,
+.review-name-editor input {
+  width: 100%;
+  min-height: 2.35rem;
+  padding: 0 0.7rem;
+  border: 1px solid #f0dce7;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.review-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--color-text);
+  font-weight: 800;
+}
+
+.review-name-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.review-name-preview,
+.review-font-preview {
+  display: grid;
+  place-items: center;
+  min-height: 3.2rem;
+  padding: 0.65rem;
+  border: 1px solid #f0dce7;
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--color-primary);
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.review-name-preview {
+  grid-column: 1 / -1;
+  gap: 0.1rem;
+}
+
+.review-name-preview strong {
+  color: var(--color-text);
+  font-size: 1.1rem;
+}
+
+.review-font-preview.outline {
+  color: #fff;
+  text-shadow:
+    -1px -1px 0 var(--color-primary),
+    1px -1px 0 var(--color-primary),
+    -1px 1px 0 var(--color-primary),
+    1px 1px 0 var(--color-primary);
 }
 
 @media (max-width: 760px) {
@@ -959,6 +1080,11 @@ h1 {
   }
 
   .smart-cart-field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .review-line,
+  .review-name-editor {
     grid-template-columns: 1fr;
   }
 
