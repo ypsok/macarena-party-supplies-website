@@ -87,6 +87,10 @@ function getCurrentQuestion() {
   return getSmartCartProfile().questions[state.currentPage] || null;
 }
 
+function hasAnswerForQuestion(question) {
+  return Boolean(question && state.smartCart?.answers?.[question.id]);
+}
+
 function getCatalogName() {
   return catalogConfig.name || document.title.replace("| Macarena Party Supplies", "").trim() || "Catálogo";
 }
@@ -311,7 +315,7 @@ function showQuestionPanel(question) {
       };
       saveSmartCartSession();
       note.remove();
-      showSmartCartNote("Listo, guardé tu selección.");
+      updateSmartCartBubble();
       return;
     }
 
@@ -331,7 +335,7 @@ function showQuestionPanel(question) {
     };
     saveSmartCartSession();
     note.remove();
-    showSmartCartNote("Listo, guardé tu punto de entrega preferido.");
+    updateSmartCartBubble();
   });
 
   document.body.appendChild(note);
@@ -342,9 +346,10 @@ function updateSmartCartBubble() {
   if (!fab || !state.smartCart) return;
 
   const question = getCurrentQuestion();
+  const needsAnswer = Boolean(state.smartCart.enabled && question && !hasAnswerForQuestion(question));
   fab.classList.toggle("is-disabled", !state.smartCart.enabled);
-  fab.classList.toggle("is-ready", Boolean(state.smartCart.enabled && question));
-  fab.classList.toggle("is-active", Boolean(state.smartCart.enabled && !question));
+  fab.classList.toggle("is-ready", needsAnswer);
+  fab.classList.toggle("is-active", Boolean(state.smartCart.enabled && !needsAnswer));
   fab.setAttribute(
     "aria-label",
     state.smartCart.enabled ? "Abrir MPS Smart Cart" : "Activar MPS Smart Cart"
