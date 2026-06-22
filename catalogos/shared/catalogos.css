@@ -510,27 +510,6 @@ h1 {
   animation: smartCartCallout 1.3s ease-in-out infinite;
 }
 
-.smart-cart-fab-badge {
-  position: absolute;
-  right: 0.15rem;
-  bottom: calc(100% + 0.4rem);
-  display: none;
-  width: max-content;
-  padding: 0.22rem 0.5rem;
-  border-radius: 999px;
-  background: #26a269;
-  color: #fff;
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  box-shadow: 0 10px 22px rgba(38, 162, 105, 0.24);
-}
-
-.smart-cart-fab.is-ready .smart-cart-fab-badge {
-  display: block;
-}
-
 @keyframes smartCartCallout {
   0%,
   100% {

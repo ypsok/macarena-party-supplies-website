@@ -140,7 +140,6 @@ function showSmartCartBubble() {
   fab.setAttribute("aria-label", "Abrir MPS Smart Cart");
   fab.innerHTML = `
     <span class="smart-cart-fab-icon" aria-hidden="true">MPS</span>
-    <span class="smart-cart-fab-badge" aria-hidden="true">Ábreme</span>
   `;
 
   fab.addEventListener("click", openSmartCartPanel);
