@@ -612,14 +612,19 @@ h1 {
 }
 
 .smart-cart-stepper {
-  display: inline-flex;
+  display: grid;
+  grid-template-columns: 1.9rem 1.35rem 1.9rem;
   align-items: center;
-  gap: 0.45rem;
+  justify-items: center;
+  gap: 0.35rem;
+  min-width: 5.5rem;
 }
 
 .smart-cart-stepper button {
-  width: 1.85rem;
-  height: 1.85rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: inline-grid;
+  place-items: center;
   border: 0;
   border-radius: 50%;
   background: var(--color-primary);
@@ -627,13 +632,16 @@ h1 {
   cursor: pointer;
   font-size: 1.05rem;
   font-weight: 900;
-  line-height: 1;
+  line-height: 0;
+  padding: 0;
 }
 
 .smart-cart-stepper strong {
-  min-width: 1.2rem;
+  min-width: 1.35rem;
   color: var(--color-text);
   text-align: center;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .smart-cart-question-note {
