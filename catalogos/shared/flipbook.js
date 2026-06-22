@@ -106,7 +106,24 @@ const smartCartProfiles = {
           { id: "lastName", label: "Apellidos", placeholder: "Apellidos", fontSelector: true },
           { id: "group", label: "Grupo", placeholder: "Grupo" }
         ]
+      },
+      8: {
+        id: "designModel",
+        title: "Modelo",
+        help: "Escribe el número de diseño que quieres usar para tu pedido.",
+        type: "numberRange",
+        label: "Diseño",
+        min: 1,
+        max: 44,
+        version: "version-1"
       }
+    },
+    finalQuestion: {
+      id: "reviewOrder",
+      title: "Revisa tu pedido",
+      help: "Antes de enviarlo por WhatsApp, revisa que tus preferencias estén correctas.",
+      type: "reviewOrder",
+      reviewUrl: "revision.html"
     }
   },
   contorno: {
@@ -119,12 +136,18 @@ function getSmartCartProfile() {
 }
 
 function getCurrentQuestion() {
-  const question = getSmartCartProfile().questions[state.currentPage] || null;
+  const profile = getSmartCartProfile();
+  if (state.pageCount && state.currentPage === state.pageCount && profile.finalQuestion) {
+    return profile.finalQuestion;
+  }
+
+  const question = profile.questions[state.currentPage] || null;
   return isQuestionAvailable(question) ? question : null;
 }
 
 function hasAnswerForQuestion(question) {
   if (!question) return false;
+  if (question.type === "reviewOrder") return false;
 
   const answer = state.smartCart?.answers?.[question.id];
   if (!answer) return false;
@@ -237,6 +260,11 @@ function formatTextFieldAnswer(answer) {
   return parts.join(", ");
 }
 
+function buildWhatsappUrl() {
+  const phone = catalogConfig.whatsapp || "5213330438386";
+  return `https://wa.me/${phone}?text=${encodeURIComponent(buildSmartCartWhatsappText())}`;
+}
+
 function buildSmartCartWhatsappText() {
   const cart = state.smartCart || createSmartCartSession(false);
   const lines = [
@@ -264,6 +292,8 @@ function buildSmartCartWhatsappText() {
         });
       } else if (answer.type === "textFields") {
         lines.push(`- ${answer.label}: ${formatTextFieldAnswer(answer)}`);
+      } else if (answer.version) {
+        lines.push(`- ${answer.label}: ${answer.value} (${answer.version})`);
       } else {
         lines.push(`- ${answer.label}: ${answer.value}`);
       }
@@ -407,8 +437,27 @@ function renderTextFieldsQuestion(question, savedAnswer) {
       <div class="smart-cart-name-preview" aria-live="polite">
         <span data-preview-field="name" style="font-family: '${getFontByNumber(fonts.name || 1).family}', cursive;">${escapeHtml(values.name) || "Nombre"}</span>
         <strong data-preview-field="lastName" style="font-family: '${getFontByNumber(fonts.lastName || 5).family}', cursive;">${escapeHtml(values.lastName) || "Apellidos"}</strong>
-        <small data-preview-field="group">${escapeHtml(values.group) || "Grupo"}</small>
       </div>
+    </div>
+  `;
+}
+
+function renderNumberRangeQuestion(question, savedAnswer) {
+  return `
+    <div class="smart-cart-text-fields">
+      <label>
+        <span>${question.label}</span>
+        <input type="number" name="modelNumber" min="${question.min}" max="${question.max}" value="${savedAnswer.value || ""}" placeholder="${question.min} - ${question.max}">
+      </label>
+      <small class="smart-cart-question-note">Disponible del ${question.min} al ${question.max}.</small>
+    </div>
+  `;
+}
+
+function renderReviewQuestion(question) {
+  return `
+    <div class="smart-cart-review-start">
+      <a class="smart-cart-review-link" href="${question.reviewUrl}">Revisar pedido</a>
     </div>
   `;
 }
@@ -417,6 +466,8 @@ function renderQuestionBody(question, savedAnswer) {
   if (question.type === "multiQuantity") return renderMultiQuantityQuestion(question, savedAnswer);
   if (question.type === "packageLabelChoice") return renderPackageLabelQuestion(question, savedAnswer);
   if (question.type === "textFields") return renderTextFieldsQuestion(question, savedAnswer);
+  if (question.type === "numberRange") return renderNumberRangeQuestion(question, savedAnswer);
+  if (question.type === "reviewOrder") return renderReviewQuestion(question);
   return renderChoiceQuestion(question, savedAnswer);
 }
 
@@ -435,7 +486,7 @@ function showQuestionPanel(question) {
     ${renderQuestionBody(question, savedAnswer)}
     <div class="smart-cart-note-actions">
       <button type="button" class="smart-cart-note-secondary" data-close>Después</button>
-      <button type="button" data-save>Guardar</button>
+      ${question.type === "reviewOrder" ? "" : '<button type="button" data-save>Guardar</button>'}
     </div>
   `;
 
@@ -489,7 +540,6 @@ function showQuestionPanel(question) {
       namePreview.style.fontFamily = `'${getFontByNumber(fonts.name || 1).family}', cursive`;
       lastNamePreview.textContent = values.lastName || "Apellidos";
       lastNamePreview.style.fontFamily = `'${getFontByNumber(fonts.lastName || 5).family}', cursive`;
-      preview.querySelector('[data-preview-field="group"]').textContent = values.group || "Grupo";
     };
 
     note.querySelectorAll(".smart-cart-text-fields input, .smart-cart-font-select select").forEach((control) => {
@@ -499,7 +549,16 @@ function showQuestionPanel(question) {
   }
 
   note.querySelector("[data-close]").addEventListener("click", () => note.remove());
-  note.querySelector("[data-save]").addEventListener("click", () => {
+  note.querySelector(".smart-cart-review-link")?.addEventListener("click", () => {
+    saveSmartCartSession();
+  });
+  note.querySelector("[data-save]")?.addEventListener("click", () => {
+    if (question.type === "reviewOrder") {
+      saveSmartCartSession();
+      window.location.href = question.reviewUrl;
+      return;
+    }
+
     if (question.type === "multiQuantity") {
       const items = Array.from(note.querySelectorAll(".smart-cart-quantity-row"))
         .map((row) => ({
@@ -570,6 +629,28 @@ function showQuestionPanel(question) {
         value,
         values,
         fonts
+      };
+      saveSmartCartSession();
+      note.remove();
+      updateSmartCartBubble();
+      return;
+    }
+
+    if (question.type === "numberRange") {
+      const input = note.querySelector('input[name="modelNumber"]');
+      const value = Number(input.value);
+
+      if (!Number.isInteger(value) || value < question.min || value > question.max) {
+        showSmartCartNote(`Escribe un número de diseño entre ${question.min} y ${question.max}.`);
+        return;
+      }
+
+      state.smartCart.answers[question.id] = {
+        page: state.currentPage,
+        label: question.title,
+        value: `Diseño ${value}`,
+        modelNumber: value,
+        version: question.version
       };
       saveSmartCartSession();
       note.remove();
@@ -896,7 +977,8 @@ window.addEventListener("keydown", (event) => {
 window.MPSSmartCart = {
   getSession: () => state.smartCart,
   save: saveSmartCartSession,
-  buildWhatsappText: buildSmartCartWhatsappText
+  buildWhatsappText: buildSmartCartWhatsappText,
+  buildWhatsappUrl
 };
 
 initCatalogViewer();

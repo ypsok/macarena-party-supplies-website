@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revisión de pedido | Macarena Party Supplies</title>
+  <link rel="stylesheet" href="../catalogos/shared/catalogos.css?v=smart-cart-review-1">
+</head>
+<body>
+  <header class="catalog-header catalog-review-header">
+    <a class="catalog-logo" href="../catalogos/" aria-label="Volver a catálogos">
+      <img src="../Website%20-%20Source/assets/macarena-simplified.png" alt="Macarena Party Supplies">
+    </a>
+
+    <div class="catalog-header-actions">
+      <a class="catalog-button secondary" href="./">Volver al catálogo</a>
+      <a class="catalog-button whatsapp-ready" id="smartCartWhatsapp" href="https://wa.me/5213330438386">Envía tu pedido por WhatsApp</a>
+    </div>
+  </header>
+
+  <main class="catalog-shell smart-cart-review-page">
+    <section class="smart-cart-review-card" aria-labelledby="reviewTitle">
+      <p class="section-kicker">MPS SMART CART</p>
+      <h1 id="reviewTitle">Revisa tu pedido</h1>
+      <div class="smart-cart-review-summary" id="smartCartReviewSummary"></div>
+    </section>
+  </main>
+
+  <footer class="catalog-footer">
+    <small>Macarena Party Supplies™ 2026</small>
+  </footer>
+
+  <script>
+    window.MPS_CATALOG = {
+      id: "personajes",
+      name: "Catálogo de personajes",
+      whatsapp: "5213330438386"
+    };
+  </script>
+  <script src="../catalogos/shared/smart-cart-review.js?v=smart-cart-review-1" defer></script>
+</body>
+</html>
