@@ -334,6 +334,7 @@ function updatePricePreview() {
 
 function renderPackages() {
   const units = packageUnits();
+  const pencilItems = answer("pencilLabels").items || [];
   return `
     <section class="review-section">
       <h2>Paquetes</h2>
@@ -357,8 +358,14 @@ function renderPackages() {
               <span>Material</span>
               <select data-path="packageMaterials.${unit.key}">${selectOptions(materialOptions, cart.review.packageMaterials[unit.key] || materialOptions[0])}</select>
             </label>
+            ${["Paquete 2", "Paquete 3", "Paquete 4"].includes(unit.baseLabel) ? `
+              <label>
+                <span>Etiqueta para lápiz</span>
+                <select data-pencil-label="${unit.label}">${selectOptions(["Etiqueta Mini", "Etiqueta Full Cover"], pencilItems.find((item) => item.label === unit.label)?.value || "Etiqueta Mini")}</select>
+              </label>
+            ` : ""}
           </article>
-          ${renderInlinePersonalization({ ...unit, label: `Paquete - ${unit.label}` })}
+          ${renderInlinePersonalization({ ...unit, label: unit.label })}
         `).join("") || "<p>No hay paquetes seleccionados.</p>"}
       </div>
     </section>
@@ -368,26 +375,6 @@ function renderPackages() {
 function renderInlinePersonalization(target) {
   if (cart.review.sameNameForAll) return "";
   return renderPersonalizationBlock(target, answer("studentInfo").values || {});
-}
-
-function renderPencilLabels() {
-  const items = answer("pencilLabels").items || [];
-  return `
-    <section class="review-section">
-      <h2>Etiquetas para lápiz</h2>
-      <div class="review-list compact">
-        ${items.map((item) => `
-          <article class="review-line">
-            <strong>${item.label}</strong>
-            <label>
-              <span>Tipo</span>
-              <select data-pencil-label="${item.label}">${selectOptions(["Etiqueta Mini", "Etiqueta Full Cover"], item.value)}</select>
-            </label>
-          </article>
-        `).join("") || "<p>No aplica para los paquetes elegidos.</p>"}
-      </div>
-    </section>
-  `;
 }
 
 function renderVinylName(label, key, outline = false) {
@@ -407,7 +394,7 @@ function renderVinylName(label, key, outline = false) {
         </div>
         ${outline ? '<small class="review-note">Colores a elegir una vez contactándonos por WhatsApp.</small>' : ""}
       </article>
-      ${renderInlinePersonalization({ ...unit, label: `${label} - ${unit.label}` })}
+      ${renderInlinePersonalization({ ...unit, label: unit.label })}
     `;
   }).join("");
 }
@@ -426,19 +413,19 @@ function renderDesignAddon(label) {
         </label>
         ${customDesignField(`addons.${unit.key}.customDesign`, data.customDesign, String(selectedDesign) === "45", `addons.${unit.key}.design`)}
       </article>
-      ${renderInlinePersonalization({ ...unit, label: `${label} - ${unit.label}` })}
+      ${renderInlinePersonalization({ ...unit, label: unit.label })}
     `;
   }).join("");
 }
 
 function personalizationTargets() {
   return [
-    ...packageUnits().map((unit) => ({ ...unit, label: `Paquete - ${unit.label}` })),
-    ...addonUnits("Nombre en vinil (un color)").map((unit) => ({ ...unit, label: `Nombre vinil un color - ${unit.label}` })),
-    ...addonUnits("Nombre en vinil (dos colores)").map((unit) => ({ ...unit, label: `Nombre vinil dos colores - ${unit.label}` })),
-    ...addonUnits("Planilla escolar individual - papel").map((unit) => ({ ...unit, label: `Planilla escolar - ${unit.label}` })),
-    ...addonUnits("Planilla escolar individual - vinil").map((unit) => ({ ...unit, label: `Planilla escolar - ${unit.label}` })),
-    ...addonUnits("Plantilla de nombre al contorno con personaje").map((unit) => ({ ...unit, label: `Planilla al contorno - ${unit.label}` }))
+    ...packageUnits(),
+    ...addonUnits("Nombre en vinil (un color)"),
+    ...addonUnits("Nombre en vinil (dos colores)"),
+    ...addonUnits("Planilla escolar individual - papel"),
+    ...addonUnits("Planilla escolar individual - vinil"),
+    ...addonUnits("Plantilla de nombre al contorno con personaje")
   ];
 }
 
@@ -489,7 +476,7 @@ function renderSchoolSheets() {
           <select data-path="addons.${unit.key}.type">${selectOptions(schoolSheetTypes, data.type || schoolSheetTypes[0])}</select>
         </label>
       </article>
-      ${renderInlinePersonalization({ ...unit, label: `Planilla escolar - ${unit.label}` })}
+      ${renderInlinePersonalization({ ...unit, label: unit.label })}
     `;
   }).join("");
 }
@@ -510,7 +497,7 @@ function renderNotebookStrips() {
           <input type="text" data-path="addons.${unit.key}.designText" value="${esc(data.designText)}" placeholder="Describe el diseño">
         </label>
       </article>
-      ${renderInlinePersonalization({ ...unit, label: `Planilla al contorno - ${unit.label}` })}
+      ${renderInlinePersonalization({ ...unit, label: unit.label })}
     `;
   }).join("");
 }
@@ -721,7 +708,6 @@ function renderReview() {
     ${renderDelivery()}
     ${renderPersonalData()}
     ${renderPackages()}
-    ${renderPencilLabels()}
     ${renderAddons()}
     ${renderPricePreview()}
   `;
