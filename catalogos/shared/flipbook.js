@@ -23,6 +23,42 @@ const els = {
 
 const smartCartKey = `mps-smart-cart:${catalogConfig.id || catalogConfig.pdf || "catalog"}`;
 
+const smartCartProfiles = {
+  personajes: {
+    questions: {
+      2: {
+        id: "deliveryPoint",
+        title: "Punto de entrega preferido",
+        help: "Elige el punto que te resulte más cómodo para coordinar tu pedido.",
+        type: "choice",
+        options: [
+          "Parques de Tesistán",
+          "Calandrías",
+          "Arboreto Residencial",
+          "Valle Imperial",
+          "La Cima",
+          "Zona Real"
+        ],
+        other: {
+          label: "Otro",
+          note: "Pueden aplicar costos adicionales"
+        }
+      }
+    }
+  },
+  contorno: {
+    questions: {}
+  }
+};
+
+function getSmartCartProfile() {
+  return smartCartProfiles[catalogConfig.id] || { questions: {} };
+}
+
+function getCurrentQuestion() {
+  return getSmartCartProfile().questions[state.currentPage] || null;
+}
+
 function getCatalogName() {
   return catalogConfig.name || document.title.replace("| Macarena Party Supplies", "").trim() || "Catálogo";
 }
@@ -37,6 +73,7 @@ function createSmartCartSession(enabled) {
     },
     currentPage: state.currentPage,
     pageCount: state.pageCount,
+    promptedAgain: false,
     answers: {},
     selections: [],
     createdAt: new Date().toISOString(),
@@ -80,11 +117,22 @@ function buildSmartCartWhatsappText() {
     });
   }
 
+  const answers = Object.values(cart.answers || {});
+  if (answers.length) {
+    lines.push("", "Preferencias:");
+    answers.forEach((answer) => {
+      lines.push(`- ${answer.label}: ${answer.value}`);
+    });
+  }
+
   return lines.join("\n");
 }
 
 function showSmartCartBubble() {
-  if (!state.smartCart?.enabled || document.querySelector(".smart-cart-fab")) return;
+  if (!state.smartCart || document.querySelector(".smart-cart-fab")) {
+    updateSmartCartBubble();
+    return;
+  }
 
   const fab = document.createElement("button");
   fab.type = "button";
@@ -92,11 +140,12 @@ function showSmartCartBubble() {
   fab.setAttribute("aria-label", "Abrir MPS Smart Cart");
   fab.innerHTML = `
     <span class="smart-cart-fab-icon" aria-hidden="true">MPS</span>
-    <span class="smart-cart-fab-text">Haz click para agregar tus preferencias</span>
+    <span class="smart-cart-fab-badge" aria-hidden="true">Ábreme</span>
   `;
 
   fab.addEventListener("click", openSmartCartPanel);
   document.body.appendChild(fab);
+  updateSmartCartBubble();
 }
 
 function removeSmartCartBubble() {
@@ -120,15 +169,103 @@ function showSmartCartNote(message) {
   document.body.appendChild(note);
 }
 
-function openSmartCartPanel() {
-  if (!state.smartCart?.enabled) return;
+function showQuestionPanel(question) {
+  document.querySelector(".smart-cart-note")?.remove();
 
-  if (state.currentPage <= 1) {
-    showSmartCartNote("Explora las páginas del catálogo y vuelve aquí cuando encuentres una opción que quieras guardar para tu pedido.");
+  const savedAnswer = state.smartCart?.answers?.[question.id] || {};
+  const note = document.createElement("div");
+  note.className = "smart-cart-note smart-cart-question";
+  note.setAttribute("role", "dialog");
+  note.setAttribute("aria-label", question.title);
+  note.innerHTML = `
+    <strong>MPS SMART CART</strong>
+    <h3>${question.title}</h3>
+    <p>${question.help}</p>
+    <div class="smart-cart-question-options">
+      ${question.options.map((option) => `
+        <button type="button" class="smart-cart-option" data-value="${option}">${option}</button>
+      `).join("")}
+      <label class="smart-cart-other">
+        <span>${question.other.label}</span>
+        <input type="text" value="${savedAnswer.other || ""}" placeholder="Escribe otra zona">
+        <small>${question.other.note}</small>
+      </label>
+    </div>
+    <div class="smart-cart-note-actions">
+      <button type="button" class="smart-cart-note-secondary" data-close>Después</button>
+      <button type="button" data-save>Guardar</button>
+    </div>
+  `;
+
+  note.querySelectorAll(".smart-cart-option").forEach((button) => {
+    if (savedAnswer.value === button.dataset.value) {
+      button.classList.add("selected");
+    }
+
+    button.addEventListener("click", () => {
+      note.querySelectorAll(".smart-cart-option").forEach((item) => item.classList.remove("selected"));
+      button.classList.add("selected");
+      note.querySelector(".smart-cart-other input").value = "";
+    });
+  });
+
+  note.querySelector("[data-close]").addEventListener("click", () => note.remove());
+  note.querySelector("[data-save]").addEventListener("click", () => {
+    const selected = note.querySelector(".smart-cart-option.selected")?.dataset.value || "";
+    const other = note.querySelector(".smart-cart-other input").value.trim();
+    const value = other || selected;
+
+    if (!value) {
+      showSmartCartNote("Elige una opción o escribe otro punto de entrega para guardarlo.");
+      return;
+    }
+
+    state.smartCart.answers[question.id] = {
+      page: state.currentPage,
+      label: question.title,
+      value,
+      other
+    };
+    saveSmartCartSession();
+    note.remove();
+    showSmartCartNote("Listo, guardé tu punto de entrega preferido.");
+  });
+
+  document.body.appendChild(note);
+}
+
+function updateSmartCartBubble() {
+  const fab = document.querySelector(".smart-cart-fab");
+  if (!fab || !state.smartCart) return;
+
+  const question = getCurrentQuestion();
+  fab.classList.toggle("is-disabled", !state.smartCart.enabled);
+  fab.classList.toggle("is-ready", Boolean(state.smartCart.enabled && question));
+  fab.classList.toggle("is-active", Boolean(state.smartCart.enabled && !question));
+  fab.setAttribute(
+    "aria-label",
+    state.smartCart.enabled ? "Abrir MPS Smart Cart" : "Activar MPS Smart Cart"
+  );
+}
+
+function openSmartCartPanel() {
+  if (!state.smartCart?.enabled) {
+    createSmartCartPrompt({ fromDisabledBubble: true });
     return;
   }
 
-  showSmartCartNote(`Estás en la página ${state.currentPage}. En el siguiente paso aquí guardaremos tus preferencias para esta opción.`);
+  if (state.currentPage <= 1) {
+    showSmartCartNote("Revisa el catálogo para registrar tus preferencias.");
+    return;
+  }
+
+  const question = getCurrentQuestion();
+  if (question) {
+    showQuestionPanel(question);
+    return;
+  }
+
+  showSmartCartNote("Esta página aún no tiene preguntas activas. Sigue explorando el catálogo.");
 }
 
 function createSmartCartPrompt() {
@@ -166,14 +303,12 @@ function createSmartCartPrompt() {
 }
 
 function setSmartCartPreference(enabled) {
-  state.smartCart = createSmartCartSession(enabled);
+  const existing = state.smartCart || loadSmartCartSession();
+  state.smartCart = existing || createSmartCartSession(enabled);
+  state.smartCart.enabled = enabled;
   saveSmartCartSession();
   document.querySelector(".smart-cart-modal")?.remove();
-  if (enabled) {
-    showSmartCartBubble();
-  } else {
-    removeSmartCartBubble();
-  }
+  showSmartCartBubble();
 }
 
 function initSmartCartPrompt() {
@@ -293,6 +428,7 @@ async function renderViewer(pageNumber) {
     els.book.appendChild(spread);
     state.currentPage = safePage;
     saveSmartCartSession();
+    updateSmartCartBubble();
     hideStatus();
   } catch (error) {
     showPdfFallback("Hubo un problema renderizando esta página.");
