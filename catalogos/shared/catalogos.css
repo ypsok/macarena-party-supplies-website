@@ -89,7 +89,7 @@ button {
 .catalog-shell {
   width: min(1180px, calc(100% - 2rem));
   margin: 0 auto;
-  padding: 2.5rem 0 4rem;
+  padding: clamp(1rem, 3vh, 2.5rem) 0 4rem;
 }
 
 .viewer-shell {
@@ -100,7 +100,7 @@ button {
   display: grid;
   gap: 1rem;
   max-width: 760px;
-  margin-bottom: 1.75rem;
+  margin-bottom: clamp(0.85rem, 2vh, 1.75rem);
 }
 
 .eyebrow {
@@ -126,16 +126,32 @@ h1 {
 }
 
 .catalog-options {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
   gap: 1rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 0.35rem 0.25rem 1.25rem;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+
+.catalog-options::-webkit-scrollbar {
+  height: 0.55rem;
+}
+
+.catalog-options::-webkit-scrollbar-thumb {
+  background: rgba(232, 106, 163, 0.36);
+  border-radius: 999px;
 }
 
 .catalog-option-card {
   position: relative;
   display: grid;
-  grid-template-rows: minmax(220px, 1fr) auto;
-  min-height: 420px;
+  grid-template-rows: minmax(0, 1fr) auto;
+  flex: 0 0 min(520px, calc((100% - 1rem) / 2));
+  min-width: min(420px, 82vw);
+  height: min(620px, calc(100svh - 190px));
+  min-height: 360px;
   padding: 0;
   border: 1px solid #f0dce7;
   border-radius: var(--radius);
@@ -152,10 +168,11 @@ h1 {
 
 .catalog-option-media {
   position: relative;
-  min-height: 260px;
+  min-height: 0;
   background:
     linear-gradient(135deg, rgba(232, 106, 163, 0.2), rgba(108, 92, 231, 0.1)),
     repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.42) 0 12px, rgba(255, 255, 255, 0.12) 12px 24px);
+  overflow: hidden;
 }
 
 .catalog-option-media::after {
@@ -178,8 +195,8 @@ h1 {
 .catalog-option-media img {
   width: 100%;
   height: 100%;
-  min-height: 260px;
-  object-fit: cover;
+  object-fit: contain;
+  background: #fff;
 }
 
 .catalog-option-media img[hidden] {
@@ -189,12 +206,12 @@ h1 {
 .catalog-option-content {
   display: grid;
   gap: 0.55rem;
-  padding: 1.25rem;
+  padding: clamp(0.85rem, 2vw, 1.25rem);
   background: #fff;
 }
 
 .catalog-option-content strong {
-  font-size: clamp(1.5rem, 4vw, 2.6rem);
+  font-size: clamp(1.25rem, 2.4vw, 2rem);
   line-height: 1.05;
 }
 
@@ -366,17 +383,26 @@ h1 {
   }
 
   .catalog-options {
+    display: grid;
     grid-template-columns: 1fr;
+    overflow: visible;
+    padding: 0;
   }
 
   .catalog-option-card {
-    grid-template-rows: minmax(210px, auto) auto;
-    min-height: 360px;
+    flex-basis: auto;
+    min-width: 0;
+    min-height: 0;
+    height: auto;
+    grid-template-rows: minmax(0, auto) auto;
   }
 
-  .catalog-option-media,
+  .catalog-option-media {
+    height: min(56svh, 420px);
+  }
+
   .catalog-option-media img {
-    min-height: 210px;
+    min-height: 0;
   }
 
   .flipbook-panel {
