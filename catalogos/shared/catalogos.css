@@ -934,6 +934,10 @@ h1 {
   display: none;
 }
 
+.review-custom-design.is-hidden {
+  display: none;
+}
+
 .review-line {
   display: grid;
   grid-template-columns: minmax(9rem, 1fr) repeat(2, minmax(9rem, 0.85fr));

@@ -58,6 +58,7 @@ function ensureReviewData() {
   cart.review.orderName = cart.review.orderName || answer("studentInfo").values?.name || "";
   cart.review.deliveryPoint = cart.review.deliveryPoint || answer("deliveryPoint").value || "";
   cart.review.packageDesigns = cart.review.packageDesigns || {};
+  cart.review.packageCustomDesigns = cart.review.packageCustomDesigns || {};
   cart.review.packageMaterials = cart.review.packageMaterials || {};
   cart.review.addons = cart.review.addons || {};
   cart.review.sameNameForAll = cart.review.sameNameForAll ?? true;
@@ -132,6 +133,15 @@ function designOptions(selected) {
   `).join("");
 }
 
+function customDesignField(path, value, visible, triggerPath) {
+  return `
+    <label class="review-custom-design${visible ? "" : " is-hidden"}" data-custom-design-for="${triggerPath}">
+      <span>Diseño personalizado</span>
+      <input type="text" data-path="${path}" value="${esc(value)}" placeholder="Describe el diseño personalizado">
+    </label>
+  `;
+}
+
 function fontOptions(selected) {
   return fonts.map((font) => `
     <option value="${font.number}"${String(selected) === String(font.number) ? " selected" : ""}>
@@ -193,6 +203,7 @@ function renderPackages() {
               <span>Diseño</span>
               <select data-path="packageDesigns.${unit.key}">${designOptions(cart.review.packageDesigns[unit.key] || defaultDesign())}</select>
             </label>
+            ${customDesignField(`packageCustomDesigns.${unit.key}`, cart.review.packageCustomDesigns?.[unit.key], String(cart.review.packageDesigns[unit.key] || defaultDesign()) === "45", `packageDesigns.${unit.key}`)}
             <label>
               <span>Material</span>
               <select data-path="packageMaterials.${unit.key}">${selectOptions(materialOptions, cart.review.packageMaterials[unit.key] || materialOptions[0])}</select>
@@ -243,13 +254,15 @@ function renderVinylName(label, key, outline = false) {
 function renderDesignAddon(label) {
   return addonUnits(label).map((unit) => {
     const data = cart.review.addons[unit.key] || {};
+    const selectedDesign = data.design || onlyKnownDesign();
     return `
       <article class="review-line">
         <strong>${unit.label}</strong>
         <label>
-          <span>Diseño escrito</span>
-          <input type="text" data-path="addons.${unit.key}.designText" value="${esc(data.designText)}" placeholder="Describe el diseño">
+          <span>Diseño</span>
+          <select data-path="addons.${unit.key}.design">${designOptions(selectedDesign)}</select>
         </label>
+        ${customDesignField(`addons.${unit.key}.customDesign`, data.customDesign, String(selectedDesign) === "45", `addons.${unit.key}.design`)}
       </article>
     `;
   }).join("");
@@ -298,13 +311,15 @@ function renderSchoolSheets() {
 
   return units.map((unit) => {
     const data = cart.review.addons[unit.key] || {};
+    const selectedDesign = data.design || onlyKnownDesign();
     return `
       <article class="review-line">
         <strong>${unit.label}</strong>
         <label>
           <span>Diseño</span>
-          <select data-path="addons.${unit.key}.design">${designOptions(data.design || onlyKnownDesign())}</select>
+          <select data-path="addons.${unit.key}.design">${designOptions(selectedDesign)}</select>
         </label>
+        ${customDesignField(`addons.${unit.key}.customDesign`, data.customDesign, String(selectedDesign) === "45", `addons.${unit.key}.design`)}
         <label>
           <span>Tipo</span>
           <select data-path="addons.${unit.key}.type">${selectOptions(schoolSheetTypes, data.type || schoolSheetTypes[0])}</select>
@@ -329,8 +344,8 @@ function renderNotebookStrips() {
           <input type="text" data-path="addons.${unit.key}.text" value="${esc(data.text)}" placeholder="Ej. Nombre completo">
         </label>
         <label>
-          <span>Diseño</span>
-          <select data-path="addons.${unit.key}.design">${designOptions(data.design || onlyKnownDesign())}</select>
+          <span>Diseño escrito</span>
+          <input type="text" data-path="addons.${unit.key}.designText" value="${esc(data.designText)}" placeholder="Describe el diseño">
         </label>
       </article>
     `;
@@ -434,6 +449,10 @@ function bindReviewEvents() {
     control.addEventListener("input", () => {
       const value = control.type === "checkbox" ? control.checked : control.value;
       setDeep(cart.review, control.dataset.path, value);
+      const customDesign = reviewSummary.querySelector(`[data-custom-design-for="${control.dataset.path}"]`);
+      if (customDesign) {
+        customDesign.classList.toggle("is-hidden", String(value) !== "45");
+      }
       saveCart();
       if (control.dataset.path === "sameNameForAll") renderReview();
       refreshFontPreviews();
@@ -515,8 +534,10 @@ function renderReview() {
   saveCart();
 }
 
-function formatDesign(value) {
-  return value ? `${value}. ${designName(value)}` : "Sin diseño";
+function formatDesign(value, customText = "") {
+  if (!value) return "Sin diseño";
+  const label = `${value}. ${designName(value)}`;
+  return String(value) === "45" && customText ? `${label}: ${customText}` : label;
 }
 
 function buildWhatsappText() {
@@ -532,7 +553,7 @@ function buildWhatsappText() {
   ];
 
   packageUnits().forEach((unit) => {
-    lines.push(`- ${unit.label}: ${formatDesign(cart.review.packageDesigns[unit.key] || defaultDesign())}; Material: ${cart.review.packageMaterials[unit.key] || materialOptions[0]}`);
+    lines.push(`- ${unit.label}: ${formatDesign(cart.review.packageDesigns[unit.key] || defaultDesign(), cart.review.packageCustomDesigns?.[unit.key])}; Material: ${cart.review.packageMaterials[unit.key] || materialOptions[0]}`);
   });
 
   const pencil = answer("pencilLabels").items || [];
@@ -543,7 +564,10 @@ function buildWhatsappText() {
 
   lines.push("", "Complementos:");
   Object.entries(cart.review.addons || {}).forEach(([key, value]) => {
-    const details = Object.entries(value).map(([field, detail]) => `${field}: ${field === "design" ? formatDesign(detail) : detail}`).join("; ");
+    const details = Object.entries(value)
+      .filter(([field]) => field !== "customDesign")
+      .map(([field, detail]) => `${field}: ${field === "design" ? formatDesign(detail, value.customDesign) : detail}`)
+      .join("; ");
     lines.push(`- ${key}: ${details}`);
   });
 
