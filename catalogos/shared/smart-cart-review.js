@@ -13,7 +13,7 @@ const deliveryOptions = [
   "Otro"
 ];
 
-const materialOptions = ["Papel adhesivo", "Vinil adhesivo", "Vinil laminado"];
+const materialOptions = ["Papel adhesivo", "Vinil laminado"];
 const schoolSheetTypes = ["Rectangular", "Circular", "Lápiz mini", "Lápiz full cover"];
 const prices = {
   packages: {
@@ -71,6 +71,39 @@ function answer(id) {
   return cart?.answers?.[id] || {};
 }
 
+function ensureAnswer(id, label, items = []) {
+  cart.answers[id] = cart.answers[id] || { page: 0, label, items };
+  cart.answers[id].items = cart.answers[id].items || items;
+  return cart.answers[id];
+}
+
+function changeItemQuantity(answerId, label, delta) {
+  const answerLabels = {
+    package: "Paquete",
+    addons: "Complementos"
+  };
+  const target = ensureAnswer(answerId, answerLabels[answerId] || answerId);
+  const item = target.items.find((entry) => entry.label === label);
+
+  if (!item && delta > 0) {
+    target.items.push({ label, quantity: answerId === "addons" && label === "Tira larga para cuaderno" ? Math.max(2, delta) : delta });
+  } else if (item) {
+    item.quantity += delta;
+    if (label === "Tira larga para cuaderno" && item.quantity > 0 && item.quantity < 2) item.quantity = 0;
+    target.items = target.items.filter((entry) => entry.quantity > 0);
+  }
+
+  saveCart();
+  renderReview();
+}
+
+function updatePencilLabel(label, value) {
+  const target = ensureAnswer("pencilLabels", "Etiqueta para lápiz");
+  const item = target.items.find((entry) => entry.label === label);
+  if (item) item.value = value;
+  saveCart();
+}
+
 function ensureReviewData() {
   cart.review = cart.review || {};
   cart.review.orderName = cart.review.orderName || answer("studentInfo").values?.name || "";
@@ -85,7 +118,20 @@ function ensureReviewData() {
   packageUnits().forEach((unit) => {
     cart.review.packageDesigns[unit.key] = cart.review.packageDesigns[unit.key] || defaultDesign();
     cart.review.packageMaterials[unit.key] = cart.review.packageMaterials[unit.key] || materialOptions[0];
+    if (!materialOptions.includes(cart.review.packageMaterials[unit.key])) {
+      cart.review.packageMaterials[unit.key] = materialKind(cart.review.packageMaterials[unit.key]) === "vinil" ? "Vinil laminado" : materialOptions[0];
+    }
   });
+
+  const pencilTargets = packageUnits().filter((unit) => ["Paquete 2", "Paquete 3", "Paquete 4"].includes(unit.baseLabel));
+  const pencilAnswer = ensureAnswer("pencilLabels", "Etiqueta para lápiz");
+  const targetLabels = new Set(pencilTargets.map((unit) => unit.label));
+  pencilTargets.forEach((unit) => {
+    if (!pencilAnswer.items.find((item) => item.label === unit.label)) {
+      pencilAnswer.items.push({ id: unit.key, label: unit.label, value: "Etiqueta Mini" });
+    }
+  });
+  pencilAnswer.items = pencilAnswer.items.filter((item) => targetLabels.has(item.label));
 
   addonUnits("Tag para mochila").forEach((unit) => {
     cart.review.addons[unit.key] = cart.review.addons[unit.key] || {};
@@ -248,6 +294,10 @@ function renderDelivery() {
         <span>Entrega</span>
         <select data-path="deliveryPoint">${selectOptions(deliveryOptions, cart.review.deliveryPoint)}</select>
       </label>
+      <label class="review-field review-other-delivery${cart.review.deliveryPoint === "Otro" ? "" : " is-hidden"}" data-other-delivery>
+        <span>Otra zona de entrega</span>
+        <input type="text" data-path="deliveryOther" value="${esc(cart.review.deliveryOther)}" placeholder="Escribe la zona">
+      </label>
     </section>
   `;
 }
@@ -287,10 +337,17 @@ function renderPackages() {
   return `
     <section class="review-section">
       <h2>Paquetes</h2>
+      <div class="review-add-row">
+        <select data-add-select="package">
+          ${["Paquete 1", "Paquete 2", "Paquete 3", "Paquete 4"].map((item) => `<option value="${item}">${item}</option>`).join("")}
+        </select>
+        <button type="button" data-add-item="package">Agregar paquete</button>
+      </div>
       <div class="review-list">
         ${units.map((unit) => `
           <article class="review-line">
             <strong>(${unit.index}) ${unit.baseLabel}</strong>
+            <button class="review-remove" type="button" data-remove-item="package" data-item-label="${unit.baseLabel}">Eliminar</button>
             <label>
               <span>Diseño</span>
               <select data-path="packageDesigns.${unit.key}">${designOptions(cart.review.packageDesigns[unit.key] || defaultDesign())}</select>
@@ -301,10 +358,16 @@ function renderPackages() {
               <select data-path="packageMaterials.${unit.key}">${selectOptions(materialOptions, cart.review.packageMaterials[unit.key] || materialOptions[0])}</select>
             </label>
           </article>
+          ${renderInlinePersonalization({ ...unit, label: `Paquete - ${unit.label}` })}
         `).join("") || "<p>No hay paquetes seleccionados.</p>"}
       </div>
     </section>
   `;
+}
+
+function renderInlinePersonalization(target) {
+  if (cart.review.sameNameForAll) return "";
+  return renderPersonalizationBlock(target, answer("studentInfo").values || {});
 }
 
 function renderPencilLabels() {
@@ -316,7 +379,10 @@ function renderPencilLabels() {
         ${items.map((item) => `
           <article class="review-line">
             <strong>${item.label}</strong>
-            <span>${item.value}</span>
+            <label>
+              <span>Tipo</span>
+              <select data-pencil-label="${item.label}">${selectOptions(["Etiqueta Mini", "Etiqueta Full Cover"], item.value)}</select>
+            </label>
           </article>
         `).join("") || "<p>No aplica para los paquetes elegidos.</p>"}
       </div>
@@ -331,6 +397,7 @@ function renderVinylName(label, key, outline = false) {
     return `
       <article class="review-line">
         <strong>${unit.label}</strong>
+        <button class="review-remove" type="button" data-remove-item="addons" data-item-label="${label}">Eliminar</button>
         <label>
           <span>Tipografía</span>
           <select data-path="addons.${unit.key}.font">${fontOptions(data.font || answer("studentInfo").fonts?.name || 1)}</select>
@@ -338,7 +405,9 @@ function renderVinylName(label, key, outline = false) {
         <div class="review-font-preview${outline ? " outline" : ""}" data-font-preview="${unit.key}">
           ${esc(answer("studentInfo").values?.name) || "Nombre"}
         </div>
+        ${outline ? '<small class="review-note">Colores a elegir una vez contactándonos por WhatsApp.</small>' : ""}
       </article>
+      ${renderInlinePersonalization({ ...unit, label: `${label} - ${unit.label}` })}
     `;
   }).join("");
 }
@@ -350,12 +419,14 @@ function renderDesignAddon(label) {
     return `
       <article class="review-line">
         <strong>${unit.label}</strong>
+        <button class="review-remove" type="button" data-remove-item="addons" data-item-label="${label}">Eliminar</button>
         <label>
           <span>Diseño</span>
           <select data-path="addons.${unit.key}.design">${designOptions(selectedDesign)}</select>
         </label>
         ${customDesignField(`addons.${unit.key}.customDesign`, data.customDesign, String(selectedDesign) === "45", `addons.${unit.key}.design`)}
       </article>
+      ${renderInlinePersonalization({ ...unit, label: `${label} - ${unit.label}` })}
     `;
   }).join("");
 }
@@ -407,6 +478,7 @@ function renderSchoolSheets() {
     return `
       <article class="review-line">
         <strong>${unit.label}</strong>
+        <button class="review-remove" type="button" data-remove-item="addons" data-item-label="${unit.baseLabel}">Eliminar</button>
         <label>
           <span>Diseño</span>
           <select data-path="addons.${unit.key}.design">${designOptions(selectedDesign)}</select>
@@ -416,11 +488,8 @@ function renderSchoolSheets() {
           <span>Tipo</span>
           <select data-path="addons.${unit.key}.type">${selectOptions(schoolSheetTypes, data.type || schoolSheetTypes[0])}</select>
         </label>
-        <label>
-          <span>Material</span>
-          <select data-path="addons.${unit.key}.material">${selectOptions(materialOptions, data.material || materialOptions[0])}</select>
-        </label>
       </article>
+      ${renderInlinePersonalization({ ...unit, label: `Planilla escolar - ${unit.label}` })}
     `;
   }).join("");
 }
@@ -431,6 +500,7 @@ function renderNotebookStrips() {
     return `
       <article class="review-line">
         <strong>${unit.label}</strong>
+        <button class="review-remove" type="button" data-remove-item="addons" data-item-label="${unit.baseLabel}">Eliminar</button>
         <label>
           <span>Datos de tira</span>
           <input type="text" data-path="addons.${unit.key}.text" value="${esc(data.text)}" placeholder="Ej. Nombre completo">
@@ -440,6 +510,7 @@ function renderNotebookStrips() {
           <input type="text" data-path="addons.${unit.key}.designText" value="${esc(data.designText)}" placeholder="Describe el diseño">
         </label>
       </article>
+      ${renderInlinePersonalization({ ...unit, label: `Planilla al contorno - ${unit.label}` })}
     `;
   }).join("");
 }
@@ -450,6 +521,7 @@ function renderContourSheets() {
     return `
       <article class="review-line">
         <strong>${unit.label}</strong>
+        <button class="review-remove" type="button" data-remove-item="addons" data-item-label="${unit.baseLabel}">Eliminar</button>
         <label>
           <span>Personaje</span>
           <input type="text" data-path="addons.${unit.key}.character" value="${esc(data.character)}" placeholder="Personaje">
@@ -476,6 +548,20 @@ function renderAddons() {
   return `
     <section class="review-section">
       <h2>Complementos</h2>
+      <div class="review-add-row">
+        <select data-add-select="addons">
+          ${[
+            "Tag para mochila",
+            "Nombre en vinil (un color)",
+            "Nombre en vinil (dos colores)",
+            "Plantilla de nombre al contorno con personaje",
+            "Planilla escolar individual - papel",
+            "Planilla escolar individual - vinil",
+            "Tira larga para cuaderno"
+          ].map((item) => `<option value="${item}">${item}</option>`).join("")}
+        </select>
+        <button type="button" data-add-item="addons">Agregar complemento</button>
+      </div>
       <div class="review-list">${html || "<p>No hay complementos seleccionados.</p>"}</div>
     </section>
   `;
@@ -519,9 +605,6 @@ function renderPersonalData() {
           <strong data-main-lastname>${esc(values.lastName) || "Apellidos"}</strong>
         </div>
       </div>
-      <div class="review-list${cart.review.sameNameForAll ? " is-hidden" : ""}" id="packagePeople">
-        ${personalizationTargets().map((target) => renderPersonalizationBlock(target, values)).join("")}
-      </div>
     </section>
   `;
 }
@@ -545,6 +628,9 @@ function bindReviewEvents() {
       if (customDesign) {
         customDesign.classList.toggle("is-hidden", String(value) !== "45");
       }
+      if (control.dataset.path === "deliveryPoint") {
+        reviewSummary.querySelector("[data-other-delivery]")?.classList.toggle("is-hidden", value !== "Otro");
+      }
       saveCart();
       if (control.dataset.path === "sameNameForAll") renderReview();
       refreshFontPreviews();
@@ -565,6 +651,24 @@ function bindReviewEvents() {
       refreshFontPreviews();
     });
     control.addEventListener("change", () => control.dispatchEvent(new Event("input")));
+  });
+
+  reviewSummary.querySelectorAll("[data-add-item]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const answerId = button.dataset.addItem;
+      const label = reviewSummary.querySelector(`[data-add-select="${answerId}"]`)?.value;
+      if (label) changeItemQuantity(answerId, label, 1);
+    });
+  });
+
+  reviewSummary.querySelectorAll("[data-remove-item]").forEach((button) => {
+    button.addEventListener("click", () => {
+      changeItemQuantity(button.dataset.removeItem, button.dataset.itemLabel, -1);
+    });
+  });
+
+  reviewSummary.querySelectorAll("[data-pencil-label]").forEach((select) => {
+    select.addEventListener("change", () => updatePencilLabel(select.dataset.pencilLabel, select.value));
   });
 }
 
@@ -615,11 +719,11 @@ function renderReview() {
   ensureReviewData();
   reviewSummary.innerHTML = `
     ${renderDelivery()}
+    ${renderPersonalData()}
     ${renderPackages()}
     ${renderPencilLabels()}
     ${renderAddons()}
     ${renderPricePreview()}
-    ${renderPersonalData()}
   `;
 
   bindReviewEvents();
@@ -640,7 +744,7 @@ function buildWhatsappText() {
     "Hola, quiero cotizar este pedido.",
     `Catálogo: ${cart.catalog?.name || reviewConfig.name || "Catálogo"}`,
     "",
-    `Punto de entrega: ${cart.review.deliveryPoint || "Sin definir"}`,
+    `Punto de entrega: ${cart.review.deliveryPoint === "Otro" ? `Otro - ${cart.review.deliveryOther || "Sin especificar"}` : cart.review.deliveryPoint || "Sin definir"}`,
     "",
     "Paquetes:"
   ];

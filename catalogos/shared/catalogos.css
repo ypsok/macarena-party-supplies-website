@@ -934,8 +934,57 @@ h1 {
   display: none;
 }
 
+.review-field.is-hidden,
 .review-custom-design.is-hidden {
   display: none;
+}
+
+.review-add-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.55rem;
+}
+
+.review-add-row select,
+.review-add-row button {
+  min-height: 2.35rem;
+  border-radius: 999px;
+  font: inherit;
+}
+
+.review-add-row select {
+  padding: 0 0.75rem;
+  border: 1px solid #f0dce7;
+  background: #fff;
+  color: var(--color-text);
+}
+
+.review-add-row button,
+.review-remove {
+  border: 0;
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.review-add-row button {
+  padding: 0 0.9rem;
+}
+
+.review-remove {
+  justify-self: start;
+  min-height: 1.9rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: #9b274c;
+  font-size: 0.78rem;
+}
+
+.review-note {
+  grid-column: 1 / -1;
+  color: var(--color-muted);
+  line-height: 1.35;
 }
 
 .review-line {
@@ -1141,7 +1190,8 @@ h1 {
   }
 
   .review-line,
-  .review-name-editor {
+  .review-name-editor,
+  .review-add-row {
     grid-template-columns: 1fr;
   }
 

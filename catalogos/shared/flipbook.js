@@ -44,7 +44,7 @@ const smartCartProfiles = {
       2: {
         id: "deliveryPoint",
         title: "Punto de entrega preferido",
-        help: "Elige el punto de entrega que te resulte más cómodo para coordinar tu entrega.",
+        help: "Elige el punto de entrega más conveniente para ti.",
         type: "choice",
         options: [
           "Parques de Tesistán",
@@ -63,7 +63,7 @@ const smartCartProfiles = {
         id: "package",
         title: "Paquete",
         help: "Selecciona el paquete o los paquetes que te interesan. Puedes elegir más de uno.",
-        note: "Puedes ver la distribución de etiquetas en las páginas 5 y 6.",
+        note: "Puedes ver la distribución de etiquetas en las páginas 5 y 6. El material se elige más adelante.",
         type: "multiQuantity",
         options: [
           "Paquete 1",
