@@ -55,6 +55,7 @@ function answer(id) {
 
 function ensureReviewData() {
   cart.review = cart.review || {};
+  cart.review.orderName = cart.review.orderName || answer("studentInfo").values?.name || "";
   cart.review.deliveryPoint = cart.review.deliveryPoint || answer("deliveryPoint").value || "";
   cart.review.packageDesigns = cart.review.packageDesigns || {};
   cart.review.packageMaterials = cart.review.packageMaterials || {};
@@ -160,7 +161,11 @@ function onlyKnownDesign() {
 function renderDelivery() {
   return `
     <section class="review-section">
-      <h2>Punto de entrega</h2>
+      <h2>Datos del pedido</h2>
+      <label class="review-field">
+        <span>Pedido a nombre de</span>
+        <input type="text" data-path="orderName" value="${esc(cart.review.orderName)}" placeholder="Nombre de quien solicita">
+      </label>
       <label class="review-field">
         <span>Entrega</span>
         <select data-path="deliveryPoint">${selectOptions(deliveryOptions, cart.review.deliveryPoint)}</select>
@@ -466,6 +471,8 @@ function formatDesign(value) {
 
 function buildWhatsappText() {
   const lines = [
+    `PEDIDO DE: ${cart.review.orderName || "Sin nombre"}`,
+    "",
     "Hola, quiero cotizar este pedido.",
     `Catálogo: ${cart.catalog?.name || reviewConfig.name || "Catálogo"}`,
     "",
