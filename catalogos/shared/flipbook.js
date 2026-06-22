@@ -137,8 +137,14 @@ function getSmartCartProfile() {
 
 function getCurrentQuestion() {
   const profile = getSmartCartProfile();
-  if (state.pageCount && state.currentPage === state.pageCount && profile.finalQuestion) {
+  const designQuestion = profile.questions[8];
+
+  if (profile.finalQuestion && isSmartCartComplete()) {
     return profile.finalQuestion;
+  }
+
+  if (profile.finalQuestion && designQuestion && state.currentPage >= 8) {
+    return hasAnswerForQuestion(designQuestion) ? profile.finalQuestion : designQuestion;
   }
 
   const question = profile.questions[state.currentPage] || null;
@@ -178,6 +184,17 @@ function isQuestionAvailable(question) {
   if (!question) return false;
   if (question.type !== "packageLabelChoice") return true;
   return getPackageLabelTargets(question).length > 0;
+}
+
+function getRequiredSmartCartQuestions() {
+  const profile = getSmartCartProfile();
+  return Object.values(profile.questions || {}).filter(isQuestionAvailable);
+}
+
+function isSmartCartComplete() {
+  if (!state.smartCart?.enabled) return false;
+  const questions = getRequiredSmartCartQuestions();
+  return questions.length > 0 && questions.every(hasAnswerForQuestion);
 }
 
 function getCatalogName() {
